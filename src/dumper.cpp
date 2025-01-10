@@ -67,8 +67,8 @@ namespace vulkan
 
         d->resolve_sections( stop_token );
 
-        if ( options.resolve_imports( ) )
-            d->resolve_imports( process->module_factory.modules( ) );
+        if ( options.resolve_imports( ) != dumper::options::resolve_imports_type_t::none )
+            d->resolve_imports( process->module_factory.modules( ), options.resolve_imports( ) == dumper::options::resolve_imports_type_t::exports );
 
         return std::move( d->_image );
     }
@@ -152,7 +152,7 @@ namespace vulkan
         }
     }
 
-    void dumper::resolve_imports( const std::vector< std::shared_ptr< wincpp::modules::module_t > >& modules )
+    void dumper::resolve_imports( const std::vector< std::shared_ptr< wincpp::modules::module_t > >& modules, bool exports_only )
     {
         _image->refresh( );
 
@@ -231,7 +231,7 @@ namespace vulkan
         }
     }
 
-    dumper::options::options( ) noexcept : _module_name( ), _target_decryption_factor( 1.0f ), _resolve_imports( false )
+    dumper::options::options( ) noexcept : _module_name( ), _target_decryption_factor( 1.0f ), _resolve_imports( resolve_imports_type_t::none )
     {
     }
 
@@ -262,12 +262,12 @@ namespace vulkan
         return *this;
     }
 
-    bool dumper::options::resolve_imports( ) const noexcept
+    dumper::options::resolve_imports_type_t dumper::options::resolve_imports( ) const noexcept
     {
         return _resolve_imports;
     }
 
-    dumper::options& dumper::options::resolve_imports( bool value ) noexcept
+    dumper::options& dumper::options::resolve_imports( resolve_imports_type_t value ) noexcept
     {
         _resolve_imports = value;
         return *this;

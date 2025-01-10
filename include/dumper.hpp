@@ -23,9 +23,32 @@ namespace vulkan
         /// </summary>
         class options final
         {
+           public:
+            /// <summary>
+            /// The type of imports to resolve.
+            /// </summary>
+            enum class resolve_imports_type_t
+            {
+                /// <summary>
+                /// No imports are resolved.
+                /// </summary>
+                none,
+
+                /// <summary>
+                /// Imports are only added if existing in export table.
+                /// </summary>
+                exports,
+
+                /// <summary>
+                /// All references are resolved.
+                /// </summary>
+                all
+            };
+
+           private:
             std::string _module_name;
             float _target_decryption_factor;
-            bool _resolve_imports;
+            resolve_imports_type_t _resolve_imports;
 
             explicit options( ) noexcept;
 
@@ -59,12 +82,12 @@ namespace vulkan
             /// <summary>
             /// Gets whether to resolve imports.
             /// </summary>
-            bool resolve_imports( ) const noexcept;
+            resolve_imports_type_t resolve_imports( ) const noexcept;
 
             /// <summary>
             /// Sets whether to resolve imports. This option will only work on the main module of the process.
             /// </summary>
-            options& resolve_imports( bool value ) noexcept;
+            options& resolve_imports( resolve_imports_type_t value ) noexcept;
         };
 
        private:
@@ -104,7 +127,7 @@ namespace vulkan
         /// <summary>
         /// Resolves all of the imports in the PE file.
         /// </summary>
-        void resolve_imports( const std::vector< std::shared_ptr< wincpp::modules::module_t > >& modules );
+        void resolve_imports( const std::vector< std::shared_ptr< wincpp::modules::module_t > >& modules, bool exports_only = true );
 
         /// <summary>
         /// Saves the dumped PE file to a file.

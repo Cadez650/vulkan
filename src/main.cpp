@@ -36,7 +36,20 @@ std::int32_t main( std::int32_t argc, char* argv[] )
         .default_value< float >( 1.0f )
         .help( "the decryption factor to use when decrypting the PE" )
         .default_value( 1.0f );
-    parser.add_argument( "-i", "--resolve-imports" ).flag( ).default_value< bool >( false ).help( "rebuild the import table from scratch" );
+    parser.add_argument( "--resolve-imports" )
+        .default_value< vulkan::dumper::options::resolve_imports_type_t >( vulkan::dumper::options::resolve_imports_type_t::none )
+        .action(
+            []( const std::string& value ) -> vulkan::dumper::options::resolve_imports_type_t
+            {
+                if ( value == "none" )
+                    return vulkan::dumper::options::resolve_imports_type_t::none;
+                if ( value == "exports" )
+                    return vulkan::dumper::options::resolve_imports_type_t::exports;
+                if ( value == "all" )
+                    return vulkan::dumper::options::resolve_imports_type_t::all;
+                throw std::runtime_error( "invalid resolve-imports value" );
+            } )
+        .help( "resolve imports" );
 
     SetConsoleCtrlHandler( console_ctrl_handler, TRUE );
 
@@ -69,7 +82,7 @@ std::int32_t main( std::int32_t argc, char* argv[] )
             opts.module_name( process->name( ) );
 
         opts.target_decryption_factor( parser.get< float >( "decryption-factor" ) );
-        opts.resolve_imports( parser.get< bool >( "resolve-imports" ) );
+        opts.resolve_imports( parser.get< vulkan::dumper::options::resolve_imports_type_t >( "resolve-imports" ) );
 
         const auto& image = vulkan::dumper::dump( process, opts, stop_source.get_token( ) );
 
